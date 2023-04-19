@@ -4,18 +4,10 @@ export type CascadeData = {
   [k: string]: any;
 };
 export interface CallbackFn {
-  (
-    curValue: string[] | number[] | CascadeData[],
-    indexArr: number[],
-    context: MobileSelect
-  ): void;
+  (curValue: string[] | number[] | CascadeData[], indexArr: number[], context: MobileSelect): void;
 }
 export interface OldCallbackFn {
-  (
-    indexArr: number[],
-    curValue: string[] | number[] | CascadeData[],
-    context: MobileSelect
-  ): void;
+  (indexArr: number[], curValue: string[] | number[] | CascadeData[], context: MobileSelect): void;
 }
 
 export type KeyMap = { id: string; value: string; childs: string };
@@ -45,7 +37,7 @@ export type CustomConfig = {
   onHide?: CallbackFn;
 
   /** 初始值 传入后会自动计算出初始化滚动位置 */
-  initValue?: string;
+  initValue?: string[] | number[];
 
   /** 初始化滚动位置 */
   position?: number[];

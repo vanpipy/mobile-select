@@ -1,9 +1,4 @@
-import {
-  MobileSelectConfig,
-  CustomConfig,
-  CascadeData,
-  OptionData,
-} from "./types";
+import { MobileSelectConfig, CustomConfig, CascadeData, OptionData } from "./types";
 import "./style/mobile-select.less";
 
 export default class MobileSelect {
@@ -80,16 +75,12 @@ export default class MobileSelect {
 
   constructor(config: CustomConfig) {
     if (!MobileSelect.checkRequiredConfig(config)) return;
-    this.config = Object.assign(
-      {},
-      MobileSelect.defaultConfig,
-      config
-    ) as MobileSelectConfig;
+    this.config = Object.assign({}, MobileSelect.defaultConfig, config) as MobileSelectConfig;
     this.wheelsData = config.wheels;
     this.isJsonType = false;
     this.cascadeJsonData = [];
     this.displayJson = [];
-    this.curValue = [];
+    this.curValue = this.config.initValue || [];
     this.curIndexArr = [];
     this.isCascade = false;
     this.startY;
@@ -115,12 +106,8 @@ export default class MobileSelect {
     if (!this.checkTriggerAvailable()) return;
 
     // 这里使用getElementsByClassName(不使用querySelectorAll)的原因：返回一个实时的 HTMLCollection, DOM的更改将在更改发生时反映在数组中
-    this.wheelList = this.mobileSelect.getElementsByClassName(
-      "ms-wheel"
-    ) as HTMLCollectionOf<HTMLElement>;
-    this.sliderList = this.mobileSelect.getElementsByClassName(
-      "ms-select-container"
-    ) as HTMLCollectionOf<HTMLElement>;
+    this.wheelList = this.mobileSelect.getElementsByClassName("ms-wheel") as HTMLCollectionOf<HTMLElement>;
+    this.sliderList = this.mobileSelect.getElementsByClassName("ms-select-container") as HTMLCollectionOf<HTMLElement>;
 
     this.panel = this.mobileSelect.querySelector(".ms-panel")!;
     this.wheelsContain = this.mobileSelect.querySelector(".ms-wheels")!;
@@ -174,8 +161,7 @@ export default class MobileSelect {
         fn: () => {
           this.hide();
           if (!this.optionHeight) {
-            this.optionHeight =
-              this.mobileSelect.querySelector("li")!.offsetHeight;
+            this.optionHeight = this.mobileSelect.querySelector("li")!.offsetHeight;
           }
           let tempValue = "";
           for (let i = 0; i < this.wheelList.length; i++) {
@@ -226,9 +212,7 @@ export default class MobileSelect {
   static checkIsPC() {
     return !navigator.userAgent
       .toLowerCase()
-      .match(
-        /ipad|iphone os|midp|rv:1.2.3.4|ucweb|android|windows ce|windows mobile/
-      );
+      .match(/ipad|iphone os|midp|rv:1.2.3.4|ucweb|android|windows ce|windows mobile/);
   }
   static checkDataType(wheelsData: CascadeData): boolean {
     return typeof wheelsData[0]?.data?.[0] === "object";
@@ -240,10 +224,7 @@ export default class MobileSelect {
     const requiredParams = MobileSelect.REQUIRED_PARAMS;
     if (!config) {
       const singleQuotesParams = requiredParams.map((item) => `'${item}'`);
-      MobileSelect.log(
-        "error",
-        `missing required param ${singleQuotesParams.join(" and ")}.`
-      );
+      MobileSelect.log("error", `missing required param ${singleQuotesParams.join(" and ")}.`);
       return false;
     }
     for (let i = 0; i < requiredParams.length; i++) {
@@ -262,15 +243,9 @@ export default class MobileSelect {
   checkTriggerAvailable() {
     const { config } = this;
     // @ts-ignore
-    this.trigger =
-      config.trigger instanceof HTMLElement
-        ? config.trigger
-        : document.querySelector(config.trigger);
+    this.trigger = config.trigger instanceof HTMLElement ? config.trigger : document.querySelector(config.trigger);
     if (!this.trigger) {
-      MobileSelect.log(
-        "error",
-        "trigger HTMLElement does not found on your document."
-      );
+      MobileSelect.log("error", "trigger HTMLElement does not found on your document.");
       return false;
     }
     return true;
@@ -312,8 +287,7 @@ export default class MobileSelect {
       this.cancelBtn.style.color = config.cancelBtnColor;
     }
     if (config.titleColor) {
-      const titleDom =
-        this.mobileSelect.querySelector<HTMLDivElement>(".ms-title")!;
+      const titleDom = this.mobileSelect.querySelector<HTMLDivElement>(".ms-title")!;
       titleDom.style.color = config.titleColor;
     }
     if (config.textColor) {
@@ -321,25 +295,18 @@ export default class MobileSelect {
       this.panel.style.color = config.textColor;
     }
     if (config.titleBgColor) {
-      const btnBar =
-        this.mobileSelect.querySelector<HTMLDivElement>(".ms-btn-bar")!;
+      const btnBar = this.mobileSelect.querySelector<HTMLDivElement>(".ms-btn-bar")!;
       btnBar.style.backgroundColor = config.titleBgColor;
     }
     if (config.bgColor) {
       this.panel = this.mobileSelect.querySelector(".ms-panel")!;
-      const shadowMask =
-        this.mobileSelect.querySelector<HTMLDivElement>(".ms-shadow-mask")!;
+      const shadowMask = this.mobileSelect.querySelector<HTMLDivElement>(".ms-shadow-mask")!;
       this.panel.style.backgroundColor = config.bgColor;
       shadowMask.style.background =
-        "linear-gradient(to bottom, " +
-        config.bgColor +
-        ", rgba(255, 255, 255, 0), " +
-        config.bgColor +
-        ")";
+        "linear-gradient(to bottom, " + config.bgColor + ", rgba(255, 255, 255, 0), " + config.bgColor + ")";
     }
     if (typeof config.maskOpacity === "number") {
-      const grayMask =
-        this.mobileSelect.querySelector<HTMLDivElement>(".ms-gray-layer")!;
+      const grayMask = this.mobileSelect.querySelector<HTMLDivElement>(".ms-gray-layer")!;
       grayMask.style.background = "rgba(0, 0, 0, " + config.maskOpacity + ")";
     }
   }
@@ -363,15 +330,19 @@ export default class MobileSelect {
   registerEvents(type: "add" | "remove"): void {
     for (const [domName, item] of Object.entries(this.eventHandleMap)) {
       if (typeof item.event === "string") {
-        (this[domName as keyof MobileSelect] as HTMLElement)[
-          `${type}EventListener`
-        ](item.event, item.fn as EventListener, { passive: false });
+        (this[domName as keyof MobileSelect] as HTMLElement)[`${type}EventListener`](
+          item.event,
+          item.fn as EventListener,
+          { passive: false }
+        );
       } else {
         // 数组
         item.event.forEach((eventName) => {
-          (this[domName as keyof MobileSelect] as HTMLElement)[
-            `${type}EventListener`
-          ](eventName, item.fn as EventListener, { passive: false });
+          (this[domName as keyof MobileSelect] as HTMLElement)[`${type}EventListener`](
+            eventName,
+            item.fn as EventListener,
+            { passive: false }
+          );
         });
       }
     }
@@ -438,22 +409,16 @@ export default class MobileSelect {
     const diff = this.wheelList.length - this.displayJson.length;
     if (diff > 0) {
       for (let i = 0; i < diff; i++) {
-        this.wheelsContain.removeChild(
-          this.wheelList[this.wheelList.length - 1]
-        );
+        this.wheelsContain.removeChild(this.wheelList[this.wheelList.length - 1]);
       }
     }
     for (let i = 0; i < this.displayJson.length; i++) {
       if (this.wheelList[i]) {
-        this.sliderList[i].innerHTML = this.getOptionsHtmlStr(
-          this.displayJson[i]
-        );
+        this.sliderList[i].innerHTML = this.getOptionsHtmlStr(this.displayJson[i]);
       } else {
         const tempWheel = document.createElement("div");
         tempWheel.className = "ms-wheel";
-        tempWheel.innerHTML = `<ul class="ms-select-container">${this.getOptionsHtmlStr(
-          this.displayJson[i]
-        )}</ul>`;
+        tempWheel.innerHTML = `<ul class="ms-select-container">${this.getOptionsHtmlStr(this.displayJson[i])}</ul>`;
         tempWheel.setAttribute("data-index", i.toString());
         this.wheelsContain.appendChild(tempWheel);
       }
@@ -491,8 +456,7 @@ export default class MobileSelect {
       if (keyMap.childs in parent && parent[keyMap.childs].length > 0) {
         this.displayJson.push(parent[keyMap.childs]);
         this.initDeepCount++;
-        const nextNode =
-          parent[keyMap.childs][this.initPosition[this.initDeepCount]];
+        const nextNode = parent[keyMap.childs][this.initPosition[this.initDeepCount]];
         if (nextNode) {
           this.initCheckArrDeep(nextNode);
         } else {
@@ -523,9 +487,7 @@ export default class MobileSelect {
       resultNode =
         i == 0
           ? this.cascadeJsonData[posIndexArr[0]]
-          : (resultNode as unknown as CascadeData)?.[keyMap.childs]?.[
-              posIndexArr[i]
-            ];
+          : (resultNode as unknown as CascadeData)?.[keyMap.childs]?.[posIndexArr[i]];
     }
     this.checkArrDeep(resultNode);
     this.reRenderWheels();
@@ -569,10 +531,7 @@ export default class MobileSelect {
     }
   }
 
-  updateWheel(
-    sliderIndex: number,
-    data: Omit<OptionData, "CascadeData">[]
-  ): void {
+  updateWheel(sliderIndex: number, data: Omit<OptionData, "CascadeData">[]): void {
     if (this.isCascade) {
       MobileSelect.log(
         "error",
@@ -588,14 +547,10 @@ export default class MobileSelect {
 
   fixRowStyle(): void {
     // 自定义列宽度比例 用width不用flex的原因是可以做transition过渡
-    if (
-      this.initColWidth.length &&
-      this.initColWidth.length === this.wheelList.length
-    ) {
+    if (this.initColWidth.length && this.initColWidth.length === this.wheelList.length) {
       const widthSum = this.initColWidth.reduce((cur, pre) => cur + pre, 0);
       this.initColWidth.forEach((item, index) => {
-        this.wheelList[index].style.width =
-          ((item / widthSum) * 100).toFixed(2) + "%";
+        this.wheelList[index].style.width = ((item / widthSum) * 100).toFixed(2) + "%";
       });
       return;
     }
@@ -643,6 +598,10 @@ export default class MobileSelect {
     return temp;
   }
 
+  setValue(value: string[] | number[]): void {
+    this.curValue = value;
+  }
+
   getValue(): string[] | number[] {
     return this.curValue;
   }
@@ -681,8 +640,7 @@ export default class MobileSelect {
   }
 
   getInnerText(sliderIndex: number): string {
-    const lengthOfList =
-      this.sliderList[sliderIndex].getElementsByTagName("li").length;
+    const lengthOfList = this.sliderList[sliderIndex].getElementsByTagName("li").length;
     let index = this.getIndex(this.curDistance[sliderIndex]);
 
     if (index >= lengthOfList) {
@@ -690,10 +648,7 @@ export default class MobileSelect {
     } else if (index < 0) {
       index = 0;
     }
-    return (
-      this.sliderList[sliderIndex].getElementsByTagName("li")[index]
-        ?.innerText || ""
-    );
+    return this.sliderList[sliderIndex].getElementsByTagName("li")[index]?.innerText || "";
   }
 
   touch(event: TouchEvent | MouseEvent): void {
@@ -709,9 +664,7 @@ export default class MobileSelect {
       case "touchstart":
       case "mousedown":
         theSlider.style.transition = "none 0s ease-out";
-        this.startY = Math.floor(
-          event instanceof TouchEvent ? event.touches[0].clientY : event.clientY
-        );
+        this.startY = Math.floor(event instanceof TouchEvent ? event.touches[0].clientY : event.clientY);
         this.preMoveY = this.startY;
         if (event.type === "mousedown") {
           this.enableClickStatus = true;
@@ -722,9 +675,7 @@ export default class MobileSelect {
       case "mousemove":
         event.preventDefault();
         if (event.type === "mousemove" && !this.enableClickStatus) break;
-        this.moveY = Math.floor(
-          event instanceof TouchEvent ? event.touches[0].clientY : event.clientY
-        );
+        this.moveY = Math.floor(event instanceof TouchEvent ? event.touches[0].clientY : event.clientY);
         this.offsetY = (this.moveY - this.preMoveY) * this.config.scrollSpeed;
         this.updateCurDistance(theSlider, index);
         this.curDistance[index] = this.curDistance[index] + this.offsetY;
@@ -735,41 +686,21 @@ export default class MobileSelect {
       case "touchend":
       case "mouseup":
         theSlider.style.transition = "transform 0.18s ease-out";
-        this.moveEndY = Math.floor(
-          event instanceof TouchEvent
-            ? event.changedTouches[0].clientY
-            : event.clientY
-        );
+        this.moveEndY = Math.floor(event instanceof TouchEvent ? event.changedTouches[0].clientY : event.clientY);
         this.offsetSum = this.moveEndY - this.startY;
-        this.oversizeBorder =
-          -(theSlider.getElementsByTagName("li").length - 3) *
-          this.optionHeight;
+        this.oversizeBorder = -(theSlider.getElementsByTagName("li").length - 3) * this.optionHeight;
 
         if (this.offsetSum == 0) {
           // offsetSum为0, 相当于点击事件 点击了中间的选项
-          const clickOffetNum = Math.floor(
-            (window.innerHeight - this.moveEndY) / 40
-          );
+          const clickOffetNum = Math.floor((window.innerHeight - this.moveEndY) / 40);
           if (clickOffetNum != 2) {
             const tempOffset = clickOffetNum - 2;
-            const newDistance =
-              this.curDistance[index] + tempOffset * this.optionHeight;
-            if (
-              newDistance <= 2 * this.optionHeight &&
-              newDistance >= this.oversizeBorder
-            ) {
+            const newDistance = this.curDistance[index] + tempOffset * this.optionHeight;
+            if (newDistance <= 2 * this.optionHeight && newDistance >= this.oversizeBorder) {
               this.curDistance[index] = newDistance;
               this.movePosition(theSlider, this.curDistance[index]);
-              this.config.transitionEnd?.(
-                this.getIndexArr(),
-                this.getCurValue(),
-                this
-              );
-              this.config.onTransitionEnd?.(
-                this.getCurValue(),
-                this.getIndexArr(),
-                this
-              );
+              this.config.transitionEnd?.(this.getIndexArr(), this.getCurValue(), this);
+              this.config.onTransitionEnd?.(this.getCurValue(), this.getIndexArr(), this);
             }
           }
         } else {
@@ -783,16 +714,8 @@ export default class MobileSelect {
           }
           this.movePosition(theSlider, this.curDistance[index]);
 
-          this.config.transitionEnd?.(
-            this.getIndexArr(),
-            this.getCurValue(),
-            this
-          );
-          this.config.onTransitionEnd?.(
-            this.getCurValue(),
-            this.getIndexArr(),
-            this
-          );
+          this.config.transitionEnd?.(this.getIndexArr(), this.getCurValue(), this);
+          this.config.onTransitionEnd?.(this.getCurValue(), this.getIndexArr(), this);
         }
 
         if (event.type === "mouseup") {

@@ -1,6 +1,6 @@
 import MobileSelect from "../src/index";
 
-describe("add", () => {
+describe("MobileSelect", () => {
   document.body.innerHTML = '<div id="trigger"></div>';
 
   const msInstance = new MobileSelect({
@@ -11,7 +11,16 @@ describe("add", () => {
     initValue: "周一",
   });
 
-  test("config initValue is workable", () => {
+  it("initialize with the `initValue` is workable", () => {
     expect(msInstance.getPositionByValue()).toEqual([1]);
+  });
+
+  it('should get the current value by the `getValue`', () => {
+    expect(msInstance.getValue()).toEqual(['周一']);
+  });
+
+  it('should change the value by the `setValue`', () => {
+    msInstance.setValue(['周二'])
+    expect(msInstance.getValue()).toEqual(['周二']);
   });
 });
